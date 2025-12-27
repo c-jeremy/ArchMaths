@@ -1,0 +1,191 @@
+Based on the analysis of the `arch.txt` file (which contains the full HTML, CSS, and references to the JavaScript logic of "Arch Maths"), here is a comprehensive plan and code tree to convert this into a React application.
+
+### 1. Analysis of Existing Architecture
+
+* **UI Paradigm:** The current app uses a "sidebar + canvas" layout with absolute positioning. It relies heavily on CSS variables for theming (Dark/Light mode) and direct DOM manipulation for expanding/collapsing panels.
+* **Core Logic:** There appears to be a global singleton (referred to as `archInstance` in the snippets) that handles the heavy lifting: math calculations, canvas drawing, and state serialization.
+* **Interactivity:**
+* **Sidebar:** distinct panels (Plot, Geometry, Code, Settings, File, About).
+* **Keyboard:** A custom virtual keyboard with math specific keys.
+* **Canvas:** A WebGL or 2D Canvas context for plotting graphs.
+* **Overlays:** FPS counter, coordinate displays, and floating action buttons (FABs).
+
+
+
+### 2. Proposed React Code Tree
+
+This structure separates the "View" (React) from the "Business Logic" (Math Engine), ensuring high performance for the canvas while making the UI declarative.
+
+```text
+src/
+├── assets/
+│   ├── icons/              # Extract base64 SVGs from HTML into components
+│   │   ├── IconPlot.jsx
+│   │   ├── IconGeometry.jsx
+│   │   ├── IconCode.jsx
+│   │   └── ...
+│   └── styles/
+│       ├── variables.css   # The :root CSS variables (Colors, Dimens)
+│       └── global.css      # Reset and base styles
+│
+├── components/
+│   ├── Canvas/
+│   │   ├── CanvasContainer.jsx  # Wraps the imperative canvas logic
+│   │   ├── Overlays/
+│   │   │   ├── FpsDisplay.jsx
+│   │   │   ├── InfoDisplay.jsx
+│   │   │   └── TopBlurMask.jsx
+│   │   └── FloatingControls/
+│   │       ├── ViewModeToggle.jsx (2D/3D)
+│   │       ├── ResetViewBtn.jsx
+│   │       └── StopTraceBtn.jsx
+│   │
+│   ├── Sidebar/
+│   │   ├── SidebarContainer.jsx # Handles resize and collapse logic
+│   │   ├── Navigation/
+│   │   │   └── SidebarNav.jsx   # The vertical icon strip
+│   │   └── Panels/
+│   │       ├── EntryListPanel.jsx # The main math input list
+│   │       ├── GeometryPanel.jsx
+│   │       ├── CodePanel.jsx      # Editor and Global Script
+│   │       ├── SettingsPanel.jsx
+│   │       ├── FilePanel.jsx
+│   │       └── AboutPanel.jsx
+│   │
+│   ├── Keyboard/
+│   │   ├── VirtualKeyboard.jsx  # The container (Slide-up logic)
+│   │   ├── KeyButton.jsx
+│   │   └── KeyboardInputDisplay.jsx
+│   │
+│   ├── Modals/
+│   │   ├── StageManager.jsx
+│   │   └── AnnotationMenu.jsx
+│   │
+│   └── UI/                 # Reusable smaller components
+│       ├── PillButton.jsx
+│       ├── CircleButton.jsx
+│       ├── ToggleSwitch.jsx
+│       └── Slider.jsx
+│
+├── core/
+│   ├── ArchMathEngine.js   # The non-React logic (extracted from original JS)
+│   └── MathParser.js
+│
+├── contexts/
+│   ├── ThemeContext.jsx    # Manages Dark/Light mode
+│   ├── UIStateContext.jsx  # Manages Sidebar open/close, active panel
+│   └── EngineContext.jsx   # Provides access to ArchMathEngine instance
+│
+├── hooks/
+│   ├── useWindowSize.js
+│   └── useKeyboard.js      # Logic for the virtual keyboard
+│
+├── App.jsx
+└── index.js
+
+```
+
+### 3. Key Conversion Strategies
+
+#### A. CSS Handling (The `variables.css`)
+
+The original HTML has a massive `:root` definition. Copy this entirely into `src/assets/styles/variables.css`.
+
+* **React Implementation:** Use a `ThemeContext` to toggle the `data-theme="dark"` attribute on the root `<div>` or `<body>`. This will instantly allow all child components to inherit the correct colors without rewriting CSS.
+
+#### B. The "Hybrid" Approach for Canvas
+
+React is not efficient at rendering 60FPS updates via State/Props for complex geometry.
+
+* **Strategy:** Keep the Canvas drawing logic **imperative**.
+* **Implementation:** `CanvasContainer.jsx` should return a `<div id="canvas-container"><canvas ref={canvasRef} /></div>`.
+* On `useEffect`, initialize the `ArchMathEngine` passing the `canvasRef`.
+* React controls the *UI* (buttons, inputs), but the Engine controls the *pixels*.
+
+#### C. Sidebar & Navigation State
+
+Currently, the HTML uses class toggling (e.g., `body.sidebar-hidden`).
+
+* **React Implementation:** Use `UIStateContext`.
+
+```jsx
+// Example Context Structure
+const UIState = {
+  isSidebarOpen: true,
+  activePanel: 'plot', // 'geometry', 'code', etc.
+  isPortraitMode: false, // detect via media query hook
+  keyboardVisible: false
+};
+
+```
+
+#### D. The Entry List (Math Inputs)
+
+The `entry-list` contains complex items (variables, functions) with sliders.
+
+* **React Implementation:** This is the most "React-heavy" part.
+* Create a component `EntryItem.jsx`.
+* Data structure: `const [entries, setEntries] = useState([{ id: 1, type: 'variable', value: 'x=10' }, ...])`.
+* When an input changes in React, call `archInstance.updateEntry(id, newValue)` to notify the engine.
+
+#### E. The Virtual Keyboard
+
+The keyboard has specific positioning logic (`bottom`, `transform`).
+
+* **React Implementation:** Make `VirtualKeyboard` a fixed-position component at the root level (inside `App`).
+* Control its visibility via a prop `isOpen`.
+* Use CSS transitions (just like the original) for the slide-up animation.
+
+### 4. Step-by-Step Implementation Plan
+
+1. **Scaffold:** Create the React App and copy the CSS variables.
+2. **Layout:** Build the `MainLayout` with the Sidebar (left) and Canvas (right).
+3. **Engine Bridge:** Extract the core JS logic from the original file into a class (e.g., `ArchCore`). Initialize it in a `useEffect` inside `App.jsx` and store it in a Ref or Context.
+4. **Sidebar Components:** Break down the sidebar HTML. Create the navigation buttons. Make clicking a button change the `activePanel` state.
+5. **Canvas Integration:** Ensure the `ArchCore` can attach to the React-rendered Canvas.
+6. **Math Entries:** Recreate the DOM structure of `.entry-item` as a React component. Map over a list of entries.
+7. **Keyboard:** Port the HTML structure of `#keyboard` and its CSS. Hook up the buttons to dispatch events to the currently focused `EntryItem`.
+
+### 5. Code Example: Main Layout
+
+Here is how the main layout structure would look in React:
+
+```jsx
+// src/App.jsx
+import React, { useContext } from 'react';
+import { Sidebar } from './components/Sidebar/SidebarContainer';
+import { CanvasContainer } from './components/Canvas/CanvasContainer';
+import { VirtualKeyboard } from './components/Keyboard/VirtualKeyboard';
+import { UIStateContext } from './contexts/UIStateContext';
+import './assets/styles/global.css';
+
+const App = () => {
+  const { isSidebarOpen } = useContext(UIStateContext);
+
+  return (
+    <div className={`app-container ${isSidebarOpen ? '' : 'sidebar-hidden'}`}>
+      <div id="top-blur-mask"></div>
+      
+      {/* Floating Header info */}
+      <span id="file-name-display">Arch Graph 1</span>
+
+      {/* Main Grid */}
+      <div className="main-layout">
+        <Sidebar />
+        <CanvasContainer />
+      </div>
+
+      {/* Overlays */}
+      <VirtualKeyboard />
+      
+      {/* Floating Action Buttons that live outside sidebar */}
+      <div id="show-sidebar-btn" className="btn circle-btn" onClick={...}>
+         {/* Icon */}
+      </div>
+    </div>
+  );
+};
+
+export default App;
+
+```
