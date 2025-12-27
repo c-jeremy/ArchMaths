@@ -1,0 +1,67 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'HarmonyOS_SC', Arial, sans-serif;
+}
+
+body {
+  position: relative; 
+  margin: 0;
+  padding: 0;
+  display: flex;
+  height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color-default);
+  flex-direction: row;
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+  border: none;
+  box-shadow: none;
+}
+.btn:active {
+  transform: scale(0.95);
+}
+
+.circle-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 15px;
+}
+
+.small-circle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.menu-toggle-btn {
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%;
+  font-size: 16px; 
+}
+
+.pill-btn {
+  height: 50px;
+  border-radius: 25px;
+  padding: 0 20px;
+  font-size: 16px;
+  min-width: auto;
+}

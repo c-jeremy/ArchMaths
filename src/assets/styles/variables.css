@@ -1,0 +1,57 @@
+:root {
+  --bg-color: #ddd;
+  --sidebar-bg-color: #f0f0f0;
+  --sidebar-border-color: #ccc;
+  --entry-item-bg-color: #f8f8f8; 
+  --entry-item-hover-bg-color: rgba(255, 255, 255, 0);
+  --entry-item-separator-color: #c3c3c3; 
+  --controls-border-color: #eee;
+  --add-btn-bg-color: #e0e0e0;
+  --add-btn-text-color: #000000; 
+  --text-color-default: #333;
+  --text-color-subtle: #555;
+  --text-color-error: #cc0000;
+  --text-color-accent: #007bff; 
+  --variable-indicator-dependent-color: #999999; 
+  --variable-indicator-independent-paused-color: var(--text-color-accent); 
+  --variable-indicator-independent-playing-color: orange; 
+  --canvas-bg-color: rgb(255, 255, 255);
+  --input-range-track-bg: #d3d3d3;
+  --overlay-bg-color: rgba(255, 255, 255, 0.85);
+  --overlay-text-color: #333;
+  --switch-off-bg-color: #ccc;
+  --switch-on-bg-color: var(--text-color-accent); 
+  --axis-number-color: #333;
+  --menu-bg-color: rgba(255, 255, 255, 0.95);
+  --keyboard-bg-color: rgba(255, 255, 255, 0.95);
+  --code-input-bg-color: rgba(255, 255, 255, 0.5);
+}
+
+:root[data-theme="dark"] {
+  --bg-color: #2e2e2e;
+  --sidebar-bg-color: #383838;
+  --sidebar-border-color: #4a4a4a;
+  --entry-item-bg-color: #3f3f3f;
+  --entry-item-hover-bg-color: rgba(85, 85, 85, 0);
+  --entry-item-separator-color: #505050;
+  --controls-border-color: #4a4a4a;
+  --add-btn-bg-color: #555555;
+  --add-btn-text-color: #e0e0e0;
+  --text-color-default: #e0e0e0;
+  --text-color-subtle: #b0b0b0;
+  --text-color-error: #ff6b6b;
+  --text-color-accent: #36a2ff; 
+  --variable-indicator-dependent-color: #888888; 
+  --variable-indicator-independent-paused-color: var(--text-color-accent); 
+  --variable-indicator-independent-playing-color: orange; 
+  --canvas-bg-color: #1e1e1e;
+  --input-range-track-bg: #555;
+  --overlay-bg-color: rgba(40, 40, 40, 0.85);
+  --overlay-text-color: #e0e0e0;
+  --switch-off-bg-color: #555;
+  --switch-on-bg-color: var(--text-color-accent); 
+  --axis-number-color: #ffffff;
+  --menu-bg-color: rgba(50, 50, 50, 0.95);
+  --keyboard-bg-color: rgba(50, 50, 50, 0.95);
+  --code-input-bg-color: rgba(0, 0, 0, 0.25);
+}
